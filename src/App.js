@@ -34,15 +34,45 @@ export default class App extends Component {
   
 
    currentWeather = async (long,lat) => {
-     console.log("here")
-    let api = process.env.REACT_APP_APIKEY;
-    let url = `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&apiKey=${api}&units=metric`
-    let data = await fetch(url);
-    let result = await data.json();
-    this.setState({weatherResult:result})
-    console.log("result", result)
+     try{
 
+      console.log("here")
+      let api = process.env.REACT_APP_APIKEY;
+      let url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&apiKey=${api}&units=metric`
+      let data = await fetch(url);
+      if(data == null){
+        throw new Error("There is no data")
+      }
+      let result = await data.json();
+      let resultForFiveDays = this.getFiveDaysWeather(lat,long)
+      this.setState({weatherResult:result,fiveDaysWeather:resultForFiveDays})
+      this.setState({weatherResult:result})
+      
+  
+     }catch (err){
+       alert(err.message)
+     }
     
+    
+  };
+  getFiveDaysWeather = async(lat,long) =>{
+    try{
+
+      console.log("here")
+      let api = process.env.REACT_APP_APIKEY;
+      let url = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${long}&apiKey=${api}&units=metric`
+      let data = await fetch(url);
+      if(data == null){
+        throw new Error("There is no data")
+      }
+      let result = await data.json();
+  
+      return result.list
+      
+  
+     }catch (err){
+       alert(err.message)
+     }
   }
 
 
@@ -91,16 +121,25 @@ export default class App extends Component {
             <h3 className="col-12 text-warning">Temperature: Current tempurature:{this.state.weatherResult.main.temp} C</h3>
             <h3 className="col-12 text-warning"> Feels like: {this.state.weatherResult.main.feels_like} C</h3>
             <h3 className="col-12 text-white">Weather Description: {this.state.weatherResult.weather[0].description} </h3>
+            {/* <div>
+              {this.state.fiveDaysWeather.map(item =>{return(
+                <h3>{item.dt_txt}</h3>
+                <h4>{item.main.temp}</h4>
+              )})}
+            </div> */}
           </div>
         </div>
       </div>
      </div> 
      </div>
+     
       
     </div>
     )
   }
 }
+
+
 
 
 
